@@ -1,14 +1,17 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 app.use(cors({
     origin: process.env.FRONT_URL,  // Allow requests from this origin
     methods: ['GET', 'POST'],         // Allow specific methods
     allowedHeaders: ['Content-Type'],  // Allow Content-Type header
-  }));
+}));
+
 // Middleware to parse JSON bodies
 app.use(express.json());
 
@@ -25,10 +28,12 @@ app.get('/api/products', async (req, res) => {
                 'Content-Type': 'application/json'
             }
         });
-        res.json(apiResponse.data);
+        return res.json(apiResponse.data); // Ensure only one response
     } catch (error) {
         console.error(error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to fetch data from external API' });
+        if (!res.headersSent) { // Check if headers have already been sent
+            return res.status(500).json({ error: 'Failed to fetch data from external API' });
+        }
     }
 });
 
@@ -37,22 +42,24 @@ app.post('/api/orders', async (req, res) => {
     const username = 'sfuDhrCEPTXQurlSeoIfpmSFtJrGaP/kPAW3qxwL+9w=';  // Replace with your username
     const password = 'rbs5AkATAMcsRYUcO52qVdeCVa9G0cN2cHA4fUD64sU=';  // Replace with your password
     const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
-    console.log("request : ",req)
+
     const dataToSend = req.body;
-    console.log(dataToSend);
-    res.json(dataToSend);
-   /* try {
+    console.log('Data to send:', dataToSend);
+    
+    try {
         const apiResponse = await axios.post('https://api.stockandbuy.com/v1/sales', dataToSend, {
             headers: {
                 'Authorization': authHeader,
                 'Content-Type': 'application/json'
             }
         });
-        res.json(apiResponse.data);
+        return res.json(apiResponse.data); // Ensure only one response
     } catch (error) {
         console.error(error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to send data to external API' });
-    }*/
+        if (!res.headersSent) { // Check if headers have already been sent
+            return res.status(500).json({ error: 'Failed to send data to external API' });
+        }
+    }
 });
 
 // Start the server
