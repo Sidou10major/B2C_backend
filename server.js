@@ -34,11 +34,11 @@ app.get('/api/products', async (req, res) => {
     const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
 
     try {
-        const totalPages = 24;  // Assume there are 24 pages
+        const totalPages = 5;  // Assume there are 24 pages
         let allProducts = [];
 
         // Fetch all pages of products
-        for (let page = 1; page <= totalPages; page++) {
+        for (let page = 0; page <= totalPages; page++) {
             const productsPage = await fetchProductsPage(authHeader, page);
             allProducts = allProducts.concat(productsPage);
         }
